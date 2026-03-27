@@ -639,8 +639,8 @@ function PageCard({ page, onEdit, onDelete }: { page: StatusPage; onEdit: () => 
 
       <div className="flex items-center gap-1.5 text-[10px] text-gray-600 mb-4">
         <span className="font-mono bg-white/5 px-2 py-1 rounded">{page.slug}</span>
-        {page.categories.length > 0 && (
-          <span className="px-2 py-1 rounded bg-white/5">{page.categories.length} categories</span>
+        {(page.categories?.length ?? 0) > 0 && (
+          <span className="px-2 py-1 rounded bg-white/5">{page.categories?.length} categories</span>
         )}
         <span className="px-2 py-1 rounded bg-white/5">{page.monitorIds.length} monitors</span>
       </div>
