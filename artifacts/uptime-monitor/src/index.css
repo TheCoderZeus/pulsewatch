@@ -37,36 +37,36 @@
 }
 
 :root {
-  /* Premium Dark Theme */
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
+  /* Ultra Dark Premium Theme */
+  --background: 240 15% 4%;
+  --foreground: 0 0% 97%;
   
-  --card: 240 10% 6%;
-  --card-foreground: 0 0% 98%;
+  --card: 240 12% 6%;
+  --card-foreground: 0 0% 97%;
   
-  --border: 240 10% 12%;
-  --input: 240 10% 12%;
+  --border: 240 10% 10%;
+  --input: 240 10% 10%;
   
-  --primary: 252 87% 67%; /* Deep vibrant violet/indigo */
+  --primary: 258 90% 66%; /* Violet */
   --primary-foreground: 0 0% 100%;
-  --ring: 252 87% 67%;
+  --ring: 258 90% 66%;
   
-  --secondary: 240 10% 12%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary: 240 10% 10%;
+  --secondary-foreground: 0 0% 97%;
   
-  --muted: 240 10% 10%;
-  --muted-foreground: 240 5% 65%;
+  --muted: 240 10% 8%;
+  --muted-foreground: 240 5% 55%;
   
-  --accent: 240 10% 14%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 240 10% 12%;
+  --accent-foreground: 0 0% 97%;
   
-  --success: 150 100% 40%; /* Emerald Green for UP */
+  --success: 150 80% 40%;
   --success-foreground: 0 0% 100%;
   
-  --destructive: 0 84% 60%; /* Red for DOWN */
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
-  --warning: 38 92% 50%; /* Amber for PENDING */
+  --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
   --radius: 0.75rem;
