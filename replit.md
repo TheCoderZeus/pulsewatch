@@ -91,6 +91,23 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
 
+### `artifacts/uptime-monitor` (`@workspace/uptime-monitor`)
+
+React + Vite SaaS frontend for PulseWatch. Uses Supabase for auth + `@workspace/api-client-react` for all data.
+
+- Landing page with animated hero section
+- Dashboard with stats overview and monitor list
+- Monitors page with create/search functionality
+- Monitor Detail with uptime charts (Recharts) and incident history
+- Incidents, Status Pages, Notifications, Settings pages
+- Supabase auth (email/password + social) via `useAuth` hook
+- Auth token automatically attached to every API call via `setAuthTokenGetter`
+- Tailwind CSS dark theme, Framer Motion animations
+
+### `artifacts/hero-animation` (`@workspace/hero-animation`)
+
+Video-js animated hero section (3-scene looping collaboration animation) at `/hero-animation/`.
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.

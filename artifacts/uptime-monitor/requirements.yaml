@@ -1,0 +1,16 @@
+packages:
+  "framer-motion": "For complex hero animations and smooth page transitions"
+  "recharts": "For rendering uptime and response time charts on monitor details"
+  "@supabase/supabase-js": "For authentication as requested in implementation notes"
+  "date-fns": "For formatting dates and times in the UI"
+  "clsx": "For conditional class names"
+  "tailwind-merge": "For merging tailwind classes safely"
+
+images:
+  - path: "artifacts/uptime-monitor/public/images/hero-glow.png"
+    description: "Abstract soft radial glow in deep violet and emerald green on black background, very subtle and blurred"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using @workspace/api-client-react for data fetching as per instructions
+  - Using Supabase for Auth client-side

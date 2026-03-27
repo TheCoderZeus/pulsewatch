@@ -1,22 +1,32 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PulseWatch API specification - Uptime monitoring SaaS
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: monitors
+    description: Monitor management
+  - name: incidents
+    description: Incident management
+  - name: status-pages
+    description: Public status pages
+  - name: notifications
+    description: Notification settings
+  - name: alerts
+    description: In-app alerts
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +34,411 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current session
+      responses:
+        "200":
+          description: Logged out
+
+  /monitors:
+    get:
+      operationId: getMonitors
+      tags: [monitors]
+      summary: Get all monitors for current user
+      responses:
+        "200":
+          description: List of monitors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Monitor"
+    post:
+      operationId: createMonitor
+      tags: [monitors]
+      summary: Create a new monitor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMonitorInput"
+      responses:
+        "201":
+          description: Monitor created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Monitor"
+
+  /monitors/{id}:
+    get:
+      operationId: getMonitor
+      tags: [monitors]
+      summary: Get a specific monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Monitor details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Monitor"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMonitor
+      tags: [monitors]
+      summary: Update a monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMonitorInput"
+      responses:
+        "200":
+          description: Monitor updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Monitor"
+    delete:
+      operationId: deleteMonitor
+      tags: [monitors]
+      summary: Delete a monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+
+  /monitors/{id}/pause:
+    post:
+      operationId: pauseMonitor
+      tags: [monitors]
+      summary: Pause a monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Monitor paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Monitor"
+
+  /monitors/{id}/resume:
+    post:
+      operationId: resumeMonitor
+      tags: [monitors]
+      summary: Resume a paused monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Monitor resumed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Monitor"
+
+  /monitors/{id}/checks:
+    get:
+      operationId: getMonitorChecks
+      tags: [monitors]
+      summary: Get check history for a monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Check history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Check"
+
+  /monitors/{id}/stats:
+    get:
+      operationId: getMonitorStats
+      tags: [monitors]
+      summary: Get uptime statistics for a monitor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonitorStats"
+
+  /incidents:
+    get:
+      operationId: getIncidents
+      tags: [incidents]
+      summary: Get all incidents
+      responses:
+        "200":
+          description: Incidents list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Incident"
+
+  /incidents/{id}:
+    get:
+      operationId: getIncident
+      tags: [incidents]
+      summary: Get a specific incident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+
+  /status-pages:
+    get:
+      operationId: getStatusPages
+      tags: [status-pages]
+      summary: Get all status pages
+      responses:
+        "200":
+          description: Status pages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusPage"
+    post:
+      operationId: createStatusPage
+      tags: [status-pages]
+      summary: Create a status page
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStatusPageInput"
+      responses:
+        "201":
+          description: Status page created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPage"
+
+  /status-pages/{slug}/public:
+    get:
+      operationId: getPublicStatusPage
+      tags: [status-pages]
+      summary: Get public status page data (no auth required)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public status page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicStatusPage"
+
+  /notifications:
+    get:
+      operationId: getNotificationSettings
+      tags: [notifications]
+      summary: Get notification settings for current user
+      responses:
+        "200":
+          description: Notification settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationSettings"
+    put:
+      operationId: updateNotificationSettings
+      tags: [notifications]
+      summary: Update notification settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNotificationSettingsInput"
+      responses:
+        "200":
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationSettings"
+
+  /alerts:
+    get:
+      operationId: getAlerts
+      tags: [alerts]
+      summary: Get in-app alerts for current user
+      responses:
+        "200":
+          description: Alerts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/read:
+    post:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark an alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alert marked as read
+
+  /alerts/read-all:
+    post:
+      operationId: markAllAlertsRead
+      tags: [alerts]
+      summary: Mark all alerts as read
+      responses:
+        "200":
+          description: All alerts marked as read
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [monitors]
+      summary: Get aggregated dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +449,389 @@ components:
       required:
         - status
 
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+          enum: [free, pro, enterprise]
+        createdAt:
+          type: string
+      required:
+        - id
+        - email
+        - name
+        - plan
+        - createdAt
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - name
+        - password
+
+    Monitor:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [http, https, ping, port]
+        interval:
+          type: integer
+          description: Check interval in seconds
+        status:
+          type: string
+          enum: [up, down, paused, pending]
+        responseTime:
+          type: ["integer", "null"]
+          description: Latest response time in ms
+        uptimePercent:
+          type: ["number", "null"]
+          description: Uptime percentage last 30 days
+        lastCheckedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        isPaused:
+          type: boolean
+      required:
+        - id
+        - userId
+        - name
+        - url
+        - type
+        - interval
+        - status
+        - createdAt
+        - isPaused
+
+    CreateMonitorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [http, https, ping, port]
+        interval:
+          type: integer
+      required:
+        - name
+        - url
+        - type
+        - interval
+
+    UpdateMonitorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        interval:
+          type: integer
+
+    Check:
+      type: object
+      properties:
+        id:
+          type: string
+        monitorId:
+          type: string
+        status:
+          type: string
+          enum: [up, down]
+        responseTime:
+          type: ["integer", "null"]
+        statusCode:
+          type: ["integer", "null"]
+        checkedAt:
+          type: string
+        error:
+          type: ["string", "null"]
+      required:
+        - id
+        - monitorId
+        - status
+        - checkedAt
+
+    MonitorStats:
+      type: object
+      properties:
+        monitorId:
+          type: string
+        uptime24h:
+          type: number
+        uptime7d:
+          type: number
+        uptime30d:
+          type: number
+        avgResponseTime:
+          type: ["number", "null"]
+        totalChecks:
+          type: integer
+        totalDown:
+          type: integer
+      required:
+        - monitorId
+        - uptime24h
+        - uptime7d
+        - uptime30d
+        - totalChecks
+        - totalDown
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        monitorId:
+          type: string
+        monitorName:
+          type: string
+        startedAt:
+          type: string
+        resolvedAt:
+          type: ["string", "null"]
+        duration:
+          type: ["integer", "null"]
+          description: Duration in seconds
+        status:
+          type: string
+          enum: [ongoing, resolved]
+      required:
+        - id
+        - monitorId
+        - monitorName
+        - startedAt
+        - status
+
+    StatusPage:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublic:
+          type: boolean
+        monitorIds:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - name
+        - slug
+        - isPublic
+        - monitorIds
+        - createdAt
+
+    CreateStatusPageInput:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isPublic:
+          type: boolean
+        monitorIds:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - slug
+        - isPublic
+        - monitorIds
+
+    PublicStatusPage:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        monitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicMonitorStatus"
+        overallStatus:
+          type: string
+          enum: [operational, degraded, outage]
+      required:
+        - name
+        - monitors
+        - overallStatus
+
+    PublicMonitorStatus:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [up, down, paused]
+        uptimePercent:
+          type: ["number", "null"]
+      required:
+        - name
+        - status
+
+    NotificationSettings:
+      type: object
+      properties:
+        userId:
+          type: string
+        emailEnabled:
+          type: boolean
+        emailAddress:
+          type: ["string", "null"]
+        webhookEnabled:
+          type: boolean
+        webhookUrl:
+          type: ["string", "null"]
+        discordEnabled:
+          type: boolean
+        discordWebhookUrl:
+          type: ["string", "null"]
+        inAppEnabled:
+          type: boolean
+      required:
+        - userId
+        - emailEnabled
+        - webhookEnabled
+        - discordEnabled
+        - inAppEnabled
+
+    UpdateNotificationSettingsInput:
+      type: object
+      properties:
+        emailEnabled:
+          type: boolean
+        emailAddress:
+          type: string
+        webhookEnabled:
+          type: boolean
+        webhookUrl:
+          type: string
+        discordEnabled:
+          type: boolean
+        discordWebhookUrl:
+          type: string
+        inAppEnabled:
+          type: boolean
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        monitorId:
+          type: string
+        monitorName:
+          type: string
+        type:
+          type: string
+          enum: [down, recovered, slow]
+        message:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - monitorId
+        - monitorName
+        - type
+        - message
+        - isRead
+        - createdAt
+
+    DashboardStats:
+      type: object
+      properties:
+        totalMonitors:
+          type: integer
+        monitorsUp:
+          type: integer
+        monitorsDown:
+          type: integer
+        monitorsPaused:
+          type: integer
+        avgUptime:
+          type: number
+        activeIncidents:
+          type: integer
+        unreadAlerts:
+          type: integer
+      required:
+        - totalMonitors
+        - monitorsUp
+        - monitorsDown
+        - monitorsPaused
+        - avgUptime
+        - activeIncidents
+        - unreadAlerts
