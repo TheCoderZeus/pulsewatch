@@ -67,7 +67,7 @@ export function PublicStatusPage() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          Powered by <span className="font-bold text-foreground">PulseWatch</span>
+          Powered by <span className="font-bold text-foreground">SkyWatch</span>
         </div>
       </div>
     </div>

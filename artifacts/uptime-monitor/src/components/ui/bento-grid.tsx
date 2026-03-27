@@ -27,10 +27,10 @@ export function BentoGrid({ items, className }: BentoGridProps) {
           className={cn(
             "group relative p-5 rounded-2xl overflow-hidden transition-all duration-300",
             "border border-white/10 bg-white/5 backdrop-blur-sm",
-            "hover:shadow-[0_2px_20px_rgba(100,80,255,0.1)]",
+            "hover:shadow-[0_2px_20px_rgba(14,165,233,0.08)]",
             "hover:-translate-y-0.5 will-change-transform",
             item.colSpan === 2 ? "md:col-span-2" : "col-span-1",
-            item.hasPersistentHover && "shadow-[0_2px_20px_rgba(100,80,255,0.08)] -translate-y-0.5",
+            item.hasPersistentHover && "shadow-[0_2px_20px_rgba(14,165,233,0.06)] -translate-y-0.5",
             item.className
           )}
         >
@@ -88,7 +88,7 @@ export function BentoGrid({ items, className }: BentoGridProps) {
 
           <div
             className={cn(
-              "absolute inset-0 -z-10 rounded-2xl p-px bg-gradient-to-br from-transparent via-violet-500/10 to-transparent transition-opacity duration-300",
+              "absolute inset-0 -z-10 rounded-2xl p-px bg-gradient-to-br from-transparent via-sky-500/10 to-transparent transition-opacity duration-300",
               item.hasPersistentHover ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             )}
           />
