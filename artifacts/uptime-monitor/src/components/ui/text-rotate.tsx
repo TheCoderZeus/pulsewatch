@@ -1,3 +1,5 @@
+"use client";
+
 import {
   forwardRef,
   useCallback,
@@ -12,7 +14,7 @@ import {
   type AnimatePresenceProps,
   type MotionProps,
   type Transition,
-} from "framer-motion";
+} from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface TextRotateProps {
@@ -84,10 +86,10 @@ const TextRotate = forwardRef<TextRotateRef, TextRotateProps>(
     const elements = useMemo(() => {
       const currentText = texts[currentTextIndex];
       if (splitBy === "characters") {
-        const text = currentText.split(" ");
-        return text.map((word, i) => ({
+        const words = currentText.split(" ");
+        return words.map((word, i) => ({
           characters: splitIntoCharacters(word),
-          needsSpace: i !== text.length - 1,
+          needsSpace: i !== words.length - 1,
         }));
       }
       return splitBy === "words"

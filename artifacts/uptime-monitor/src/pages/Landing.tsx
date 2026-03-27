@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, LayoutGroup } from "framer-motion";
+import { motion, LayoutGroup } from "motion/react";
 import {
   Activity, Zap, Shield, Globe, ArrowRight, CheckCircle2,
   Bell, BarChart3, Clock, Server, AlertTriangle, Star,
@@ -199,25 +199,31 @@ export function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.08 }}
-              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-5"
+              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-5"
             >
-              Know when your{" "}
+              Know when your
               <br />
               <LayoutGroup>
-                <motion.span layout className="inline-flex items-baseline gap-3 flex-wrap">
-                  <span className="text-white">APIs</span>
+                <motion.span layout className="inline-flex items-center whitespace-pre">
                   <TextRotate
-                    texts={["go down.", "are slow.", "break.", "timeout.", "fail.", "spike."]}
-                    mainClassName="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-blue-400 overflow-hidden"
+                    texts={["APIs", "endpoints", "services", "servers", "monitors", "webhooks"]}
+                    mainClassName="text-sky-300 px-3 bg-sky-500/12 overflow-hidden py-1 rounded-xl border border-sky-500/20 justify-center"
                     splitLevelClassName="overflow-hidden pb-1"
                     staggerFrom="last"
-                    initial={{ y: "110%" }}
+                    initial={{ y: "100%" }}
                     animate={{ y: 0 }}
-                    exit={{ y: "-110%" }}
-                    staggerDuration={0.02}
-                    transition={{ type: "spring", damping: 26, stiffness: 340 }}
-                    rotationInterval={2400}
+                    exit={{ y: "-120%" }}
+                    staggerDuration={0.025}
+                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                    rotationInterval={2200}
                   />
+                  <motion.span
+                    layout
+                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                    className="text-white"
+                  >
+                    {" "}go down.
+                  </motion.span>
                 </motion.span>
               </LayoutGroup>
             </motion.h1>
