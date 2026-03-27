@@ -205,7 +205,7 @@ export function LandingPage() {
               <br />
               <LayoutGroup>
                 <motion.span layout className="inline-flex items-baseline gap-3 flex-wrap">
-                  <span className="text-gray-500">APIs</span>
+                  <span className="text-white">APIs</span>
                   <TextRotate
                     texts={["go down.", "are slow.", "break.", "timeout.", "fail.", "spike."]}
                     mainClassName="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-blue-400 overflow-hidden"

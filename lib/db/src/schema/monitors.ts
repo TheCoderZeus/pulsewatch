@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, real, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, real, pgEnum, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -51,6 +51,12 @@ export const incidentsTable = pgTable("incidents", {
   status: incidentStatusEnum("status").notNull().default("ongoing"),
 });
 
+export type StatusPageCategory = {
+  id: string;
+  name: string;
+  monitorIds: string[];
+};
+
 export const statusPagesTable = pgTable("status_pages", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
@@ -59,6 +65,7 @@ export const statusPagesTable = pgTable("status_pages", {
   description: text("description"),
   isPublic: boolean("is_public").notNull().default(true),
   monitorIds: text("monitor_ids").array().notNull().default([]),
+  categories: json("categories").$type<StatusPageCategory[]>().default([]).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
