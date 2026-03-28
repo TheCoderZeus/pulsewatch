@@ -72,10 +72,14 @@ router.post("/monitors", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  const rawCheckType = req.body.checkType;
+  const checkType = rawCheckType === "page" ? "page" : "api";
+
   const [monitor] = await db.insert(monitorsTable).values({
     id: crypto.randomUUID(),
     userId: req.userId!,
     ...parsed.data,
+    checkType,
     status: "pending",
   }).returning();
 

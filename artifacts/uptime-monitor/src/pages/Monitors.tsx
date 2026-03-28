@@ -101,6 +101,7 @@ function CreateMonitorModal({ isOpen, onClose }: { isOpen: boolean, onClose: () 
     name: "",
     url: "https://",
     type: "http" as "http"|"https"|"ping"|"port",
+    checkType: "api" as "api"|"page",
     interval: 60
   });
 
@@ -148,9 +149,31 @@ function CreateMonitorModal({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               onChange={e => setFormData({...formData, url: e.target.value})}
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Monitor Category</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["api", "page"] as const).map(ct => (
+                <button
+                  key={ct}
+                  type="button"
+                  onClick={() => setFormData({...formData, checkType: ct})}
+                  className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                    formData.checkType === ct
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-secondary text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  {ct === "api" ? "🔌 API / Endpoint" : "🌐 Web Page"}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5">
+              {formData.checkType === "api" ? "Monitor REST APIs, JSON endpoints, and backend services." : "Monitor web pages — login screens, dashboards, and UI pages."}
+            </p>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Type</label>
+              <label className="block text-sm font-medium mb-1">Protocol</label>
               <select 
                 className="w-full px-4 py-2 bg-secondary border border-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
                 value={formData.type}
@@ -162,7 +185,7 @@ function CreateMonitorModal({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Interval (seconds)</label>
+              <label className="block text-sm font-medium mb-1">Interval</label>
               <select 
                 className="w-full px-4 py-2 bg-secondary border border-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
                 value={formData.interval}

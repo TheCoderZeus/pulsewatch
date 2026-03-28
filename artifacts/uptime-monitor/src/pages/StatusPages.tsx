@@ -33,6 +33,15 @@ function useStatusPages(token: string | null) {
   });
 }
 
+async function parseErrorMessage(r: Response): Promise<string> {
+  const ct = r.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    const e = await r.json().catch(() => ({}));
+    return e.error || `Error ${r.status}`;
+  }
+  return `Error ${r.status}`;
+}
+
 function useCreatePage(token: string | null) {
   const qc = useQueryClient();
   return useMutation({
@@ -42,7 +51,7 @@ function useCreatePage(token: string | null) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
       });
-      if (!r.ok) { const e = await r.json(); throw new Error(e.error || "Failed"); }
+      if (!r.ok) { throw new Error(await parseErrorMessage(r)); }
       return r.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/status-pages"] }),
@@ -58,7 +67,7 @@ function useUpdatePage(token: string | null) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
       });
-      if (!r.ok) { const e = await r.json(); throw new Error(e.error || "Failed"); }
+      if (!r.ok) { throw new Error(await parseErrorMessage(r)); }
       return r.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/status-pages"] }),
@@ -682,12 +691,64 @@ function PageCard({ page, onEdit, onDelete }: { page: StatusPage; onEdit: () => 
   );
 }
 
+/* ── Seed SkyWatch Platform Status Page ─────────────── */
+async function seedSkyWatchStatus(token: string, origin: string): Promise<void> {
+  const makeMonitor = async (name: string, url: string, checkType: "api" | "page") => {
+    const r = await fetch("/api/monitors", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name, url, type: "https", checkType, interval: 60 }),
+    });
+    if (!r.ok) throw new Error(`Failed to create monitor: ${name}`);
+    return r.json() as Promise<{ id: string }>;
+  };
+
+  const [dash, monitors, incidents, statusPgs, notifs, health, authApi, notifsApi] = await Promise.all([
+    makeMonitor("Dashboard", `${origin}/`, "page"),
+    makeMonitor("Monitors Page", `${origin}/monitors`, "page"),
+    makeMonitor("Incidents Page", `${origin}/incidents`, "page"),
+    makeMonitor("Status Pages", `${origin}/status-pages`, "page"),
+    makeMonitor("Notifications Page", `${origin}/notifications`, "page"),
+    makeMonitor("API Health Check", `${origin}/api/health`, "api"),
+    makeMonitor("Auth API", `${origin}/api/auth/me`, "api"),
+    makeMonitor("Notifications API", `${origin}/api/notifications`, "api"),
+  ]);
+
+  const categories: Category[] = [
+    { id: "cat-pages", name: "App Pages", monitorIds: [dash.id, monitors.id, incidents.id, statusPgs.id, notifs.id] },
+    { id: "cat-apis", name: "Core APIs", monitorIds: [health.id, authApi.id, notifsApi.id] },
+  ];
+
+  const allIds = categories.flatMap(c => c.monitorIds);
+
+  const r = await fetch("/api/status-pages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({
+      name: "SkyWatch Platform Status",
+      slug: "skywatch-platform",
+      description: "Live status of all SkyWatch services and APIs — monitored by SkyWatch itself.",
+      isPublic: true,
+      monitorIds: allIds,
+      categories,
+    }),
+  });
+  if (!r.ok) {
+    const ct = r.headers.get("content-type") ?? "";
+    const msg = ct.includes("json") ? (await r.json()).error : `Error ${r.status}`;
+    throw new Error(msg);
+  }
+}
+
 /* ── Main Page ───────────────────────────────────────── */
 export function StatusPages() {
   const { session } = useAuth();
   const token = session?.access_token ?? null;
   const [builderOpen, setBuilderOpen] = useState(false);
   const [editPage, setEditPage] = useState<StatusPage | null>(null);
+  const [seeding, setSeeding] = useState(false);
+  const [seedError, setSeedError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
   const { data: pages, isLoading } = useStatusPages(token);
   const { data: monitorsRaw } = useGetMonitors();
@@ -701,6 +762,23 @@ export function StatusPages() {
   const openEdit = (page: StatusPage) => { setEditPage(page); setBuilderOpen(true); };
   const closeBuilder = () => { setBuilderOpen(false); setEditPage(null); };
 
+  const handleSeedSkyWatch = async () => {
+    if (!token) return;
+    setSeeding(true);
+    setSeedError(null);
+    try {
+      await seedSkyWatchStatus(token, window.location.origin);
+      await qc.invalidateQueries({ queryKey: ["/api/status-pages"] });
+      await qc.invalidateQueries({ queryKey: ["/api/monitors"] });
+    } catch (e: any) {
+      setSeedError(e?.message ?? "Failed to create platform status page");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const hasSkyWatchPage = pages?.some(p => p.slug === "skywatch-platform");
+
   return (
     <DashboardLayout>
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -708,13 +786,32 @@ export function StatusPages() {
           <h1 className="text-2xl font-bold text-white">Status Pages</h1>
           <p className="text-gray-500 mt-1 text-sm">Public dashboards to keep your users informed.</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 text-white text-sm font-semibold hover:bg-sky-400 hover:-translate-y-0.5 transition-all shadow-lg shadow-sky-500/15"
-        >
-          <Plus className="w-4 h-4" /> Create Page
-        </button>
+        <div className="flex items-center gap-2">
+          {!hasSkyWatchPage && !isLoading && (
+            <button
+              onClick={handleSeedSkyWatch}
+              disabled={seeding}
+              title="Auto-create a status page for all SkyWatch's own services"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-sky-500/25 bg-sky-500/8 text-sky-300 text-sm font-medium hover:bg-sky-500/15 transition-all disabled:opacity-50"
+            >
+              {seeding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+              {seeding ? "Setting up…" : "Setup SkyWatch Status"}
+            </button>
+          )}
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 text-white text-sm font-semibold hover:bg-sky-400 hover:-translate-y-0.5 transition-all shadow-lg shadow-sky-500/15"
+          >
+            <Plus className="w-4 h-4" /> Create Page
+          </button>
+        </div>
       </div>
+      {seedError && (
+        <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          {seedError}
+        </div>
+      )}
 
       {isLoading ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">

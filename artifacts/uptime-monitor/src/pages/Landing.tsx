@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, LayoutGroup } from "motion/react";
+import { motion, LayoutGroup } from "framer-motion";
 import {
   Activity, Zap, Shield, Globe, ArrowRight, CheckCircle2,
   Bell, BarChart3, Clock, Server, AlertTriangle, Star,
@@ -487,16 +487,30 @@ export function LandingPage() {
               </div>
             </div>
             {[
-              { title: "Product", links: ["Features", "Pricing", "Status Page", "Changelog", "Roadmap"] },
-              { title: "Company", links: ["About", "Blog", "Careers", "Press"] },
-              { title: "Legal", links: ["Privacy", "Terms", "Security", "Cookies"] },
+              { title: "Product", links: [
+                { label: "Features", href: "#features" },
+                { label: "Pricing", href: "#pricing" },
+                { label: "Status Page", href: "#" },
+                { label: "Changelog", href: "#" },
+              ]},
+              { title: "Company", links: [
+                { label: "About", href: "#" },
+                { label: "Blog", href: "#" },
+                { label: "Careers", href: "#" },
+              ]},
+              { title: "Legal", links: [
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+                { label: "Security", href: "/security" },
+                { label: "Cookie Policy", href: "/privacy#cookies" },
+              ]},
             ].map((col, i) => (
               <div key={i}>
                 <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">{col.title}</h4>
                 <ul className="space-y-2.5">
                   {col.links.map((link, j) => (
                     <li key={j}>
-                      <a href="#" className="text-sm text-gray-600 hover:text-gray-300 transition-colors">{link}</a>
+                      <a href={link.href} className="text-sm text-gray-600 hover:text-gray-300 transition-colors">{link.label}</a>
                     </li>
                   ))}
                 </ul>

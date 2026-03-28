@@ -14,6 +14,10 @@ import { StatusPages } from "@/pages/StatusPages";
 import { PublicStatusPage } from "@/pages/PublicStatusPage";
 import { Settings } from "@/pages/Settings";
 import { Notifications } from "@/pages/Notifications";
+import { Privacy } from "@/pages/Privacy";
+import { Terms } from "@/pages/Terms";
+import { Security } from "@/pages/Security";
+import { CookieBanner } from "@/components/CookieBanner";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -38,6 +42,11 @@ function RootRouter() {
     <Switch>
       {/* Public Status Pages (No Auth Required) */}
       <Route path="/status/:slug" component={PublicStatusPage} />
+
+      {/* Legal & Info Pages */}
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/security" component={Security} />
       
       {/* Root Route - Landing if not logged in, Dashboard if logged in */}
       <Route path="/">
@@ -66,6 +75,7 @@ function App() {
             <RootRouter />
           </WouterRouter>
           <Toaster />
+          <CookieBanner />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

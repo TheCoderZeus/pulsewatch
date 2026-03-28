@@ -57,15 +57,22 @@ router.post("/status-pages", requireAuth, async (req, res): Promise<void> => {
     ...categories.flatMap(c => c.monitorIds),
   ]));
 
-  const [page] = await db.insert(statusPagesTable).values({
-    id: crypto.randomUUID(),
-    userId: req.userId!,
-    ...rest,
-    monitorIds: allMonitorIds,
-    categories: categories as StatusPageCategory[],
-  }).returning();
-
-  res.status(201).json(formatPage(page));
+  try {
+    const [page] = await db.insert(statusPagesTable).values({
+      id: crypto.randomUUID(),
+      userId: req.userId!,
+      ...rest,
+      monitorIds: allMonitorIds,
+      categories: categories as StatusPageCategory[],
+    }).returning();
+    res.status(201).json(formatPage(page));
+  } catch (err: any) {
+    if (err?.code === "23505") {
+      res.status(409).json({ error: "A status page with this slug already exists. Choose a different slug." });
+    } else {
+      res.status(500).json({ error: err?.message ?? "Failed to create status page" });
+    }
+  }
 });
 
 router.put("/status-pages/:id", requireAuth, async (req, res): Promise<void> => {
@@ -87,12 +94,19 @@ router.put("/status-pages/:id", requireAuth, async (req, res): Promise<void> => 
     ...categories.flatMap(c => c.monitorIds),
   ]));
 
-  const [updated] = await db.update(statusPagesTable)
-    .set({ ...rest, monitorIds: allMonitorIds, categories: categories as StatusPageCategory[] })
-    .where(and(eq(statusPagesTable.id, id), eq(statusPagesTable.userId, req.userId!)))
-    .returning();
-
-  res.json(formatPage(updated));
+  try {
+    const [updated] = await db.update(statusPagesTable)
+      .set({ ...rest, monitorIds: allMonitorIds, categories: categories as StatusPageCategory[] })
+      .where(and(eq(statusPagesTable.id, id), eq(statusPagesTable.userId, req.userId!)))
+      .returning();
+    res.json(formatPage(updated));
+  } catch (err: any) {
+    if (err?.code === "23505") {
+      res.status(409).json({ error: "A status page with this slug already exists. Choose a different slug." });
+    } else {
+      res.status(500).json({ error: err?.message ?? "Failed to update status page" });
+    }
+  }
 });
 
 router.delete("/status-pages/:id", requireAuth, async (req, res): Promise<void> => {

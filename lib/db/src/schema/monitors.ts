@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const monitorTypeEnum = pgEnum("monitor_type", ["http", "https", "ping", "port"]);
+export const checkTypeEnum = pgEnum("check_type", ["api", "page"]);
 export const monitorStatusEnum = pgEnum("monitor_status", ["up", "down", "paused", "pending"]);
 export const checkStatusEnum = pgEnum("check_status", ["up", "down"]);
 export const incidentStatusEnum = pgEnum("incident_status", ["ongoing", "resolved"]);
@@ -23,6 +24,7 @@ export const monitorsTable = pgTable("monitors", {
   name: text("name").notNull(),
   url: text("url").notNull(),
   type: monitorTypeEnum("type").notNull().default("https"),
+  checkType: checkTypeEnum("check_type").notNull().default("api"),
   interval: integer("interval").notNull().default(60),
   status: monitorStatusEnum("status").notNull().default("pending"),
   responseTime: integer("response_time"),
