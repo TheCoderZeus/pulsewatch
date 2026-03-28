@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const URL_TEXT = "https://api.example.com/health";
@@ -36,6 +36,7 @@ const initialMonitors = [
 ];
 
 export function CreateMonitorTutorial() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loopKey, setLoopKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [urlText, setUrlText] = useState("");
@@ -48,59 +49,63 @@ export function CreateMonitorTutorial() {
   const [newMonitorVisible, setNewMonitorVisible] = useState(false);
   const [btnHighlight, setBtnHighlight] = useState(false);
   const [createBtnHighlight, setCreateBtnHighlight] = useState(false);
-  const [cursorX, setCursorX] = useState(300);
+  const [cursorX, setCursorX] = useState(200);
   const [cursorY, setCursorY] = useState(30);
 
   useEffect(() => {
     const t: ReturnType<typeof setTimeout>[] = [];
     const at = (ms: number, fn: () => void) => t.push(setTimeout(fn, ms));
 
-    // Move cursor to "New Monitor" button
-    at(600, () => { setCursorX(272); setCursorY(48); });
+    // Measure container
+    const W = containerRef.current?.offsetWidth ?? 600;
+    const sidebarW = 112; // w-28 = 7rem
+    const formCx = (sidebarW + W) / 2; // center of slide-in form (covers main area)
+
+    // "New Monitor" button is near the right edge of the main header
+    const newBtnX = W - 70;
+    const newBtnY = 53; // 30bar + 12p-3 + 11 (half button height)
+
+    // Slide-in form Y positions (form is absolute inset-0 in main, starts at y=30)
+    const urlY      = 105; // 30 + 16(p-4) + 30(title+mb-4) + 13(label) + 14(field_half)
+    const nameY     = 158; // urlY-14 + 28 + 12(gap) + 13(label) + 14
+    const intervalY = 208; // nameY-14 + 28 + 12(gap) + 13(label) + 10(btn_half)
+    const createY   = 237; // intervalY-10 + 21 + 4(mt-1) + 13(btn_half)
+
+    at(600, () => { setCursorX(newBtnX); setCursorY(newBtnY); });
     at(1100, () => { setBtnHighlight(true); });
     at(1400, () => { setBtnHighlight(false); setShowForm(true); });
 
-    // Move to URL field
-    at(1900, () => { setCursorX(230); setCursorY(125); });
-    at(2400, () => { setUrlFocused(true); });
+    at(1900, () => { setCursorX(formCx); setCursorY(urlY); });
+    at(2350, () => { setUrlFocused(true); });
 
-    // Type URL
     URL_TEXT.split("").forEach((ch, i) => {
-      at(2650 + i * 45, () => setUrlText((p) => p + ch));
+      at(2600 + i * 45, () => setUrlText((p) => p + ch));
     });
 
-    const afterUrl = 2650 + URL_TEXT.length * 45;
+    const afterUrl = 2600 + URL_TEXT.length * 45;
 
-    // Move to Name field
-    at(afterUrl + 300, () => { setCursorX(230); setCursorY(178); setUrlFocused(false); });
-    at(afterUrl + 700, () => { setNameFocused(true); });
+    at(afterUrl + 300, () => { setCursorX(formCx); setCursorY(nameY); setUrlFocused(false); });
+    at(afterUrl + 650, () => { setNameFocused(true); });
 
     NAME_TEXT.split("").forEach((ch, i) => {
-      at(afterUrl + 900 + i * 70, () => setNameText((p) => p + ch));
+      at(afterUrl + 850 + i * 70, () => setNameText((p) => p + ch));
     });
 
-    const afterName = afterUrl + 900 + NAME_TEXT.length * 70;
+    const afterName = afterUrl + 850 + NAME_TEXT.length * 70;
 
-    // Move to interval
-    at(afterName + 300, () => { setCursorX(195); setCursorY(230); setNameFocused(false); });
+    at(afterName + 300, () => { setCursorX(formCx - 40); setCursorY(intervalY); setNameFocused(false); });
     at(afterName + 700, () => { setSelectedInterval("1 min"); });
 
-    // Move to Create button
-    at(afterName + 1200, () => { setCursorX(230); setCursorY(268); });
-    at(afterName + 1700, () => { setCreateBtnHighlight(true); setBtnState("pressed"); });
-    at(afterName + 1950, () => { setCreateBtnHighlight(false); setBtnState("loading"); });
-    at(afterName + 2700, () => {
-      setShowForm(false);
-      setBtnState("idle");
-      setNewMonitorVisible(true);
-    });
+    at(afterName + 1100, () => { setCursorX(formCx); setCursorY(createY); });
+    at(afterName + 1600, () => { setCreateBtnHighlight(true); setBtnState("pressed"); });
+    at(afterName + 1850, () => { setCreateBtnHighlight(false); setBtnState("loading"); });
+    at(afterName + 2600, () => { setShowForm(false); setBtnState("idle"); setNewMonitorVisible(true); });
 
-    // Reset
-    at(afterName + 6000, () => {
+    at(afterName + 5800, () => {
       setUrlText(""); setNameText(""); setUrlFocused(false); setNameFocused(false);
       setSelectedInterval(""); setBtnState("idle"); setShowForm(false);
       setNewMonitorVisible(false); setMonitors(initialMonitors);
-      setBtnHighlight(false); setCursorX(300); setCursorY(30);
+      setBtnHighlight(false); setCursorX(W * 0.7); setCursorY(30);
       setTimeout(() => setLoopKey((k) => k + 1), 100);
     });
 
@@ -110,7 +115,7 @@ export function CreateMonitorTutorial() {
   const intervals = ["30s", "1 min", "5 min"];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl select-none">
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-xl select-none">
       <BrowserFrame>
         <div className="h-[310px] bg-[#08090f] flex">
           {/* Sidebar */}

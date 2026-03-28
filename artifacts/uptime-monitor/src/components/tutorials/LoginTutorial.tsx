@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EMAIL = "john@example.com";
@@ -155,6 +155,7 @@ function DashboardScreen() {
 }
 
 export function LoginTutorial() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loopKey, setLoopKey] = useState(0);
   const [emailText, setEmailText] = useState("");
   const [passText, setPassText] = useState("");
@@ -162,46 +163,49 @@ export function LoginTutorial() {
   const [passFocused, setPassFocused] = useState(false);
   const [btnState, setBtnState] = useState<"idle" | "pressed" | "loading">("idle");
   const [showDashboard, setShowDashboard] = useState(false);
-  const [cursorX, setCursorX] = useState(280);
+  const [cursorX, setCursorX] = useState(200);
   const [cursorY, setCursorY] = useState(30);
 
   useEffect(() => {
     const t: ReturnType<typeof setTimeout>[] = [];
-
     const at = (ms: number, fn: () => void) => t.push(setTimeout(fn, ms));
 
-    // Cursor to email
-    at(800, () => { setCursorX(155); setCursorY(155); });
-    at(1300, () => { setEmailFocused(true); });
+    // Measure container — form is w-72 (288px) centered, cursor targets center
+    const W = containerRef.current?.offsetWidth ?? 600;
+    const cx = W / 2; // form center
 
-    // Type email
+    // Y positions (browser bar ~30px; form centered in h-[280px])
+    // Vertical centering offset ≈ (280 - 220content) / 2 = 30px → content starts at y=60
+    const emailY = 162; // 30bar + 30center + 32py + 40logo + 36sub + 14label + 15field_half
+    const passY  = 218; // emailY + 15 + 12gap + 14label + 15field_half
+    const btnY   = 265; // passY  + 15 + 16mt + 16btn_half
+
+    at(600, () => { setCursorX(cx); setCursorY(emailY); });
+    at(1100, () => { setEmailFocused(true); });
+
     EMAIL.split("").forEach((ch, i) => {
-      at(1600 + i * 65, () => setEmailText((p) => p + ch));
+      at(1350 + i * 65, () => setEmailText((p) => p + ch));
     });
 
-    const afterEmail = 1600 + EMAIL.length * 65;
+    const afterEmail = 1350 + EMAIL.length * 65;
 
-    // Move to password
-    at(afterEmail + 300, () => { setCursorX(155); setCursorY(208); setEmailFocused(false); });
-    at(afterEmail + 750, () => { setPassFocused(true); });
+    at(afterEmail + 300, () => { setCursorX(cx); setCursorY(passY); setEmailFocused(false); });
+    at(afterEmail + 650, () => { setPassFocused(true); });
 
-    // Type password
     PASS_DOTS.split("").forEach((ch, i) => {
-      at(afterEmail + 950 + i * 80, () => setPassText((p) => p + ch));
+      at(afterEmail + 850 + i * 80, () => setPassText((p) => p + ch));
     });
 
-    const afterPass = afterEmail + 950 + PASS_DOTS.length * 80;
+    const afterPass = afterEmail + 850 + PASS_DOTS.length * 80;
 
-    // Move to button
-    at(afterPass + 300, () => { setCursorX(155); setCursorY(268); setPassFocused(false); });
-    at(afterPass + 750, () => { setBtnState("pressed"); });
-    at(afterPass + 950, () => { setBtnState("loading"); });
+    at(afterPass + 300, () => { setCursorX(cx); setCursorY(btnY); setPassFocused(false); });
+    at(afterPass + 700, () => { setBtnState("pressed"); });
+    at(afterPass + 900, () => { setBtnState("loading"); });
     at(afterPass + 1700, () => { setShowDashboard(true); });
 
-    // Reset loop
-    at(afterPass + 5200, () => {
+    at(afterPass + 5000, () => {
       setEmailText(""); setPassText(""); setEmailFocused(false); setPassFocused(false);
-      setBtnState("idle"); setShowDashboard(false); setCursorX(280); setCursorY(30);
+      setBtnState("idle"); setShowDashboard(false); setCursorX(cx); setCursorY(30);
       setTimeout(() => setLoopKey((k) => k + 1), 100);
     });
 
@@ -209,7 +213,7 @@ export function LoginTutorial() {
   }, [loopKey]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl select-none">
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-xl select-none">
       <BrowserFrame url="app.skywatch.io/login">
         <AnimatePresence mode="wait">
           {showDashboard ? (
@@ -230,7 +234,6 @@ export function LoginTutorial() {
         </AnimatePresence>
       </BrowserFrame>
 
-      {/* Cursor */}
       <motion.div
         className="absolute pointer-events-none z-50"
         animate={{ x: cursorX, y: cursorY }}

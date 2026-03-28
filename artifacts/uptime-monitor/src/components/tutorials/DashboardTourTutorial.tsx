@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const bars = [48, 62, 38, 78, 55, 70, 45, 82, 52, 68, 75, 60];
@@ -19,45 +19,63 @@ function CursorIcon() {
 }
 
 export function DashboardTourTutorial() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loopKey, setLoopKey] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [hoveredMonitor, setHoveredMonitor] = useState<number | null>(null);
   const [detailMonitor, setDetailMonitor] = useState<number | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [cursorX, setCursorX] = useState(300);
+  const [cursorX, setCursorX] = useState(200);
   const [cursorY, setCursorY] = useState(30);
 
   useEffect(() => {
     const t: ReturnType<typeof setTimeout>[] = [];
     const at = (ms: number, fn: () => void) => t.push(setTimeout(fn, ms));
 
-    // Move to first stat card
-    at(700, () => { setCursorX(155); setCursorY(68); });
+    // Measure container for dynamic X positions
+    const W = containerRef.current?.offsetWidth ?? 600;
+    const sW = 112; // w-28 sidebar
+    const pad = 12; // p-3
+    const mainStart = sW + pad; // x=124
+    const mainEnd = W - pad;
+    const mainCx = (mainStart + mainEnd) / 2;
+
+    // 3-column stat cards within main area (gap-1.5 = 6px)
+    const usable = mainEnd - mainStart;
+    const cw = (usable - 12) / 3; // 12 = 2 gaps * 6px
+    const card0X = mainStart + cw / 2;
+    const card1X = mainStart + cw + 6 + cw / 2;
+    const card2X = mainStart + 2 * (cw + 6) + cw / 2;
+
+    // Y positions (browser bar 30px; p-3 = 12px; stats 54px; mb-3; chart 70px; mb-2)
+    const cardY    = 69;  // 42(start) + 27(half of 54px card)
+    const chartY   = 140; // chart center: 108 + 35
+    const mon0Y    = 204; // 190(monitors start) + 14
+    const mon1Y    = 236; // mon0Y + 28 + 4(gap)
+    const mon2Y    = 268; // mon1Y + 28 + 4
+    const mon3Y    = 300; // mon2Y + 28 + 4
+
+    at(700,  () => { setCursorX(card0X); setCursorY(cardY); });
     at(1100, () => { setHoveredCard(0); });
-    at(2000, () => { setCursorX(230); setCursorY(68); setHoveredCard(null); });
+    at(2000, () => { setCursorX(card1X); setCursorY(cardY); setHoveredCard(null); });
     at(2200, () => { setHoveredCard(1); });
-    at(3000, () => { setCursorX(308); setCursorY(68); setHoveredCard(null); });
+    at(3000, () => { setCursorX(card2X); setCursorY(cardY); setHoveredCard(null); });
     at(3200, () => { setHoveredCard(2); });
 
-    // Move to chart
-    at(4000, () => { setCursorX(230); setCursorY(120); setHoveredCard(null); });
+    at(4000, () => { setCursorX(mainCx); setCursorY(chartY); setHoveredCard(null); });
     at(4400, () => { setShowTooltip(true); });
     at(5200, () => { setShowTooltip(false); });
 
-    // Move to first monitor
-    at(5600, () => { setCursorX(230); setCursorY(178); });
+    at(5600, () => { setCursorX(mainCx); setCursorY(mon0Y); });
     at(6000, () => { setHoveredMonitor(0); });
-    at(6800, () => { setHoveredMonitor(1); setCursorX(230); setCursorY(200); });
-    at(7500, () => { setHoveredMonitor(2); setCursorX(230); setCursorY(222); });
-
-    // Click down monitor (the 4th one)
-    at(8200, () => { setCursorX(230); setCursorY(244); setHoveredMonitor(3); });
+    at(6800, () => { setCursorX(mainCx); setCursorY(mon1Y); setHoveredMonitor(1); });
+    at(7500, () => { setCursorX(mainCx); setCursorY(mon2Y); setHoveredMonitor(2); });
+    at(8200, () => { setCursorX(mainCx); setCursorY(mon3Y); setHoveredMonitor(3); });
     at(8700, () => { setDetailMonitor(3); setHoveredMonitor(null); });
 
-    // Reset
     at(12500, () => {
       setHoveredCard(null); setHoveredMonitor(null); setDetailMonitor(null);
-      setShowTooltip(false); setCursorX(300); setCursorY(30);
+      setShowTooltip(false); setCursorX(W * 0.7); setCursorY(30);
       setTimeout(() => setLoopKey((k) => k + 1), 100);
     });
 
@@ -71,7 +89,7 @@ export function DashboardTourTutorial() {
   ];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl select-none">
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-xl select-none">
       <div className="rounded-xl overflow-hidden border border-white/8 bg-[#08090f] shadow-2xl shadow-black/60">
         {/* Browser bar */}
         <div className="flex items-center gap-1.5 px-3 py-2.5 bg-[#0c0d15] border-b border-white/5">

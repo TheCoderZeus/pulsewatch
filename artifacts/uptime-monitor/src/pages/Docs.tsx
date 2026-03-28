@@ -479,11 +479,10 @@ const ALL_CONTENT: ContentSection[] = [
         <TutorialVideo label="Navigating the dashboard and exploring monitor details">
           <DashboardTourTutorial />
         </TutorialVideo>
-        <div className="grid grid-cols-3 gap-3 mt-2">
+        <div className="grid grid-cols-2 gap-3 mt-2">
           {[
             { value: "99.99%", label: "Our platform uptime SLA" },
             { value: "1yr", label: "Data retention on Pro" },
-            { value: "12+", label: "Global check regions" },
           ].map((stat) => (
             <div key={stat.label} className="text-center p-4 rounded-xl bg-white/3 border border-white/6">
               <p className="text-2xl font-bold text-white">{stat.value}</p>

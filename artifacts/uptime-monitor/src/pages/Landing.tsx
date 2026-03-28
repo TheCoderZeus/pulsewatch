@@ -125,8 +125,6 @@ const plans = [
 const stats = [
   { value: "99.99%", label: "Platform uptime" },
   { value: "< 30s", label: "Alert response time" },
-  { value: "12+", label: "Global check regions" },
-  { value: "50k+", label: "Monitors running" },
 ];
 
 /* ── Page ────────────────────────────────────────────── */
