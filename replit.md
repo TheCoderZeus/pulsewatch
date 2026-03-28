@@ -55,7 +55,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
+- App setup: `src/app.ts` — mounts `helmet`, trust proxy, CORS (restricted to `FRONTEND_URL`), JSON parsing, rate limiting (20 req/15min on auth routes, 120 req/min general), routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
 - Depends on: `@workspace/db`, `@workspace/api-zod`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
@@ -93,13 +93,16 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 
 ### `artifacts/uptime-monitor` (`@workspace/uptime-monitor`)
 
-React + Vite SaaS frontend for PulseWatch. Uses Supabase for auth + `@workspace/api-client-react` for all data.
+React + Vite SaaS frontend for SkyWatch. Uses Supabase for auth + `@workspace/api-client-react` for all data.
 
-- Landing page with animated hero section
+- Landing page with animated hero section (navbar: Features, Pricing, Docs, Status)
 - Dashboard with stats overview and monitor list
 - Monitors page with create/search functionality
 - Monitor Detail with uptime charts (Recharts) and incident history
-- Incidents, Status Pages, Notifications, Settings pages
+- Incidents, Status Pages, Notifications pages
+- **Settings page** — redesigned with profile card, security (password reset via Supabase), and danger zone (account deletion with email confirmation; deletes DB + Supabase user via `DELETE /api/auth/account`)
+- **Docs page** (`/docs`) — dark-mode documentation with sidebar navigation, live search, 8 sections (Getting Started, Monitors, Alerts, Analytics, Status Pages, Plans, Security, FAQ), previous/next navigation
+- **Terms page** (`/terms`) — updated section 6 with account deletion policy (data removed within 1 minute)
 - Supabase auth (email/password + social) via `useAuth` hook
 - Auth token automatically attached to every API call via `setAuthTokenGetter`
 - Tailwind CSS dark theme, Framer Motion animations

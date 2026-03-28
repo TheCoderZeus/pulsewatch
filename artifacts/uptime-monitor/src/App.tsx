@@ -18,6 +18,7 @@ import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
 import { Security } from "@/pages/Security";
 import { PlatformStatus } from "@/pages/PlatformStatus";
+import { Docs } from "@/pages/Docs";
 import { CookieBanner } from "@/components/CookieBanner";
 import NotFound from "@/pages/not-found";
 
@@ -49,6 +50,7 @@ function RootRouter() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/security" component={Security} />
+      <Route path="/docs" component={Docs} />
       
       {/* Root Route - Landing if not logged in, Dashboard if logged in */}
       <Route path="/">
