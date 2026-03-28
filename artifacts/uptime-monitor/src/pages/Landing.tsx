@@ -90,36 +90,16 @@ const bentoItems: BentoItem[] = [
   },
 ];
 
-/* ── Pricing plans ───────────────────────────────────── */
-const plans = [
-  {
-    name: "Hobby",
-    price: "$0",
-    period: "/mo",
-    desc: "Perfect for personal projects and hobby sites.",
-    features: ["5 Monitors", "5-minute check interval", "Email alerts only", "30-day data retention", "Community support"],
-    cta: "Get Started Free",
-    highlight: false,
-  },
-  {
-    name: "Pro",
-    price: "$29",
-    period: "/mo",
-    desc: "For teams that need reliability at scale.",
-    features: ["50 Monitors", "1-minute check interval", "Email, Discord & Webhook", "Public Status Page", "1-year data retention", "Priority support"],
-    cta: "Start 14-day Trial",
-    highlight: true,
-    badge: "Most Popular",
-  },
-  {
-    name: "Enterprise",
-    price: "$99",
-    period: "/mo",
-    desc: "Unlimited scale with white-label options.",
-    features: ["Unlimited Monitors", "30-second check interval", "All notification channels", "White-label status pages", "Custom domain", "SLA guarantee"],
-    cta: "Contact Sales",
-    highlight: false,
-  },
+/* ── Free plan features (what's actually available) ─── */
+const freeFeatures = [
+  { icon: <Activity className="w-3.5 h-3.5 text-sky-400" />, label: "Create & manage monitors", desc: "Add any URL and start monitoring instantly" },
+  { icon: <BarChart3 className="w-3.5 h-3.5 text-blue-400" />, label: "Real-time dashboard", desc: "Live overview of all your monitors at a glance" },
+  { icon: <Clock className="w-3.5 h-3.5 text-teal-400" />, label: "Response time charts", desc: "Visualize latency trends and spot anomalies" },
+  { icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />, label: "Incident tracking", desc: "Automatic incident creation and history log" },
+  { icon: <Bell className="w-3.5 h-3.5 text-rose-400" />, label: "Email & webhook alerts", desc: "Get notified the moment something goes wrong" },
+  { icon: <Globe className="w-3.5 h-3.5 text-green-400" />, label: "Public status page", desc: "Share a live status page with your users" },
+  { icon: <Shield className="w-3.5 h-3.5 text-violet-400" />, label: "Uptime reports", desc: "Full uptime history and SLA analytics" },
+  { icon: <Server className="w-3.5 h-3.5 text-sky-300" />, label: "Multiple check types", desc: "HTTP, HTTPS, HEAD and POST checks supported" },
 ];
 
 const stats = [
@@ -362,9 +342,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Pricing ─── */}
+      {/* ─── What's Included ─── */}
       <section id="pricing" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -373,67 +353,68 @@ export function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/8 text-gray-500 text-xs font-medium mb-5">
               <Star className="w-3 h-3 text-amber-400" />
-              Simple Pricing
+              Free to Use
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-              Start free,{" "}
+              Everything included,{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-400">
-                scale as you grow
+                no credit card needed
               </span>
             </h2>
-            <p className="text-gray-500 text-sm">No hidden fees. Cancel anytime.</p>
+            <p className="text-gray-500 text-sm">Create an account and start monitoring in under 60 seconds.</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-5 items-center">
-            {plans.map((plan, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`relative rounded-2xl p-7 flex flex-col border transition-all duration-300 ${
-                  plan.highlight
-                    ? "border-sky-500/25 bg-gradient-to-b from-sky-950/40 to-[#08090f] scale-[1.03] shadow-2xl shadow-sky-500/10"
-                    : "border-white/8 bg-white/3 hover:border-white/15"
-                }`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-sky-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-sky-500/25">
-                    {plan.badge}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-2xl border border-sky-500/20 bg-gradient-to-b from-sky-950/30 to-[#08090f] shadow-2xl shadow-sky-500/8 overflow-hidden"
+          >
+            {/* Glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(14,165,233,0.07)_0%,transparent_70%)] pointer-events-none" />
+
+            <div className="relative p-8 md:p-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-500/25 text-sky-300 text-xs font-semibold mb-3">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-sky-400" />
+                    </span>
+                    Free Plan
                   </div>
-                )}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-400 mb-1">{plan.name}</h3>
-                  <p className="text-xs text-gray-600 mb-4">{plan.desc}</p>
-                  <div className="flex items-end gap-1">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-gray-600 mb-1">{plan.period}</span>
-                  </div>
+                  <h3 className="text-2xl font-bold text-white">Start monitoring right now</h3>
+                  <p className="text-gray-500 text-sm mt-1">Full access to all core features — no restrictions.</p>
                 </div>
-                <ul className="space-y-2.5 mb-8 flex-1">
-                  {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-2.5 text-xs text-gray-400">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${plan.highlight ? "bg-sky-500/15" : "bg-white/8"}`}>
-                        <CheckCircle2 className={`w-2.5 h-2.5 ${plan.highlight ? "text-sky-400" : "text-gray-500"}`} />
-                      </div>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
                 <button
-                  onClick={() => { if (plan.name !== "Enterprise") openAuth("register"); }}
-                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                    plan.highlight
-                      ? "bg-sky-500 text-white shadow-lg shadow-sky-500/20 hover:bg-sky-400 hover:-translate-y-0.5"
-                      : "bg-white/8 text-gray-300 hover:bg-white/12 border border-white/8"
-                  }`}
+                  onClick={() => openAuth("register")}
+                  className="shrink-0 inline-flex items-center gap-2 px-7 py-3 text-sm font-semibold rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/20 hover:bg-sky-400 hover:-translate-y-0.5 transition-all duration-200"
                 >
-                  {plan.cta}
+                  Get Started Free
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {freeFeatures.map((f, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07 }}
+                    className="p-4 rounded-xl bg-white/3 border border-white/6 hover:border-white/12 hover:bg-white/5 transition-all duration-200"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-white/6 flex items-center justify-center mb-3">
+                      {f.icon}
+                    </div>
+                    <p className="text-white font-semibold text-xs mb-1">{f.label}</p>
+                    <p className="text-gray-600 text-[11px] leading-relaxed">{f.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
