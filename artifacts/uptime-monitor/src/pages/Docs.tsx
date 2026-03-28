@@ -4,8 +4,11 @@ import {
   Search, Activity, Bell, BarChart3, Globe, Shield, Zap, Clock,
   Server, CheckCircle2, AlertTriangle, Key, ChevronRight,
   Menu, X, ExternalLink, BookOpen, Layers, CreditCard, HelpCircle,
-  Terminal, ArrowRight, Crown,
+  Terminal, ArrowRight, Crown, Play,
 } from "lucide-react";
+import { LoginTutorial } from "@/components/tutorials/LoginTutorial";
+import { CreateMonitorTutorial } from "@/components/tutorials/CreateMonitorTutorial";
+import { DashboardTourTutorial } from "@/components/tutorials/DashboardTourTutorial";
 
 function SkyWatchLogo({ size = 24 }: { size?: number }) {
   return (
@@ -150,6 +153,21 @@ function InfoBox({ icon, title, children, color = "sky" }: {
   );
 }
 
+function TutorialVideo({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <div className="mt-5 rounded-2xl overflow-hidden border border-white/8 bg-[#0a0c14]">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/6 bg-white/2">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-sky-400">
+          <Play className="w-3 h-3 fill-sky-400" />
+          Interactive Tutorial
+        </span>
+        <span className="ml-auto text-xs text-gray-600">{label}</span>
+      </div>
+      <div className="p-3">{children}</div>
+    </div>
+  );
+}
+
 function PlanCard({ name, price, features, highlight }: { name: string; price: string; features: string[]; highlight?: boolean }) {
   return (
     <div className={`rounded-xl p-5 border ${highlight ? "border-sky-500/30 bg-sky-500/5" : "border-white/8 bg-white/3"}`}>
@@ -228,6 +246,9 @@ const ALL_CONTENT: ContentSection[] = [
             </li>
           ))}
         </ol>
+        <TutorialVideo label="Signing in and navigating to the dashboard">
+          <LoginTutorial />
+        </TutorialVideo>
       </div>
     ),
   },
@@ -252,6 +273,9 @@ const ALL_CONTENT: ContentSection[] = [
             </li>
           ))}
         </ul>
+        <TutorialVideo label="Creating your first monitor">
+          <CreateMonitorTutorial />
+        </TutorialVideo>
         <InfoBox icon={<CheckCircle2 className="w-4 h-4" />} title="Tip" color="green">
           Use a dedicated <code className="font-mono text-xs">/health</code> or <code className="font-mono text-xs">/ping</code> endpoint that is lightweight and returns quickly. Avoid endpoints that trigger heavy database queries.
         </InfoBox>
@@ -452,7 +476,10 @@ const ALL_CONTENT: ContentSection[] = [
           The Dashboard shows your overall uptime percentage across all monitors. The Monitor Detail page shows a
           detailed timeline for each monitor, including all incidents and check results.
         </p>
-        <div className="grid grid-cols-3 gap-3">
+        <TutorialVideo label="Navigating the dashboard and exploring monitor details">
+          <DashboardTourTutorial />
+        </TutorialVideo>
+        <div className="grid grid-cols-3 gap-3 mt-2">
           {[
             { value: "99.99%", label: "Our platform uptime SLA" },
             { value: "1yr", label: "Data retention on Pro" },
