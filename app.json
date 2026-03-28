@@ -1,0 +1,41 @@
+{
+  "name": "pulsewatch-api",
+  "description": "PulseWatch API Server - Express backend for uptime monitoring",
+  "keywords": ["node", "express", "postgresql"],
+  "website": "https://github.com/TheCoderZeus/pulsewatch",
+  "repository": "https://github.com/TheCoderZeus/pulsewatch",
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Port the server listens on (Heroku sets this automatically)"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string (provided by Heroku Postgres add-on)"
+    },
+    "SUPABASE_URL": {
+      "description": "Your Supabase project URL"
+    },
+    "SUPABASE_ANON_KEY": {
+      "description": "Your Supabase anon/public key"
+    },
+    "SUPABASE_SERVICE_ROLE_KEY": {
+      "description": "Your Supabase service role key"
+    },
+    "FRONTEND_URL": {
+      "description": "URL of the Vercel frontend (e.g. https://pulsewatch.vercel.app) - used for CORS"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
