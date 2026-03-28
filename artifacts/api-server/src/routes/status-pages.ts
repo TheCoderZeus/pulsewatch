@@ -117,6 +117,72 @@ router.delete("/status-pages/:id", requireAuth, async (req, res): Promise<void> 
   res.status(204).end();
 });
 
+router.get("/platform-status", async (_req, res): Promise<void> => {
+  const pages = await db.select().from(statusPagesTable).where(
+    and(eq(statusPagesTable.slug, "skywatch-platform"), eq(statusPagesTable.isPublic, true))
+  );
+
+  if (!pages.length) {
+    res.json({
+      name: "SkyWatch Platform",
+      description: "Real-time status of SkyWatch services",
+      monitors: [],
+      categories: [],
+      overallStatus: "operational",
+    });
+    return;
+  }
+
+  const page = pages[0];
+  const categories = (page.categories as StatusPageCategory[]) ?? [];
+  const allIds = Array.from(new Set([
+    ...(page.monitorIds ?? []),
+    ...categories.flatMap(c => c.monitorIds),
+  ]));
+
+  let monitors: typeof monitorsTable.$inferSelect[] = [];
+  if (allIds.length > 0) {
+    monitors = await db.select().from(monitorsTable).where(inArray(monitorsTable.id, allIds));
+  }
+
+  const monitorMap = new Map(monitors.map(m => [m.id, m]));
+  const monitorStatuses = monitors.map(m => ({
+    id: m.id,
+    name: m.name,
+    status: m.isPaused ? "paused" as const : (m.status === "up" || m.status === "down" ? m.status : "up" as const),
+    uptimePercent: m.uptimePercent ?? null,
+    responseTime: m.responseTime ?? null,
+  }));
+
+  const categoriesWithStatus = categories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    monitors: cat.monitorIds.map(mid => {
+      const m = monitorMap.get(mid);
+      if (!m) return null;
+      return {
+        id: m.id,
+        name: m.name,
+        status: m.isPaused ? "paused" as const : (m.status === "up" || m.status === "down" ? m.status : "up" as const),
+        uptimePercent: m.uptimePercent ?? null,
+        responseTime: m.responseTime ?? null,
+      };
+    }).filter(Boolean),
+  }));
+
+  const anyDown = monitorStatuses.some(m => m.status === "down");
+  const anyPaused = monitorStatuses.some(m => m.status === "paused");
+  const overallStatus = anyDown ? "outage" : anyPaused ? "degraded" : "operational";
+
+  res.json({
+    name: page.name,
+    description: page.description ?? null,
+    monitors: monitorStatuses,
+    categories: categoriesWithStatus,
+    overallStatus,
+  });
+});
+
 router.get("/status-pages/:slug/public", async (req, res): Promise<void> => {
   const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug;
   const pages = await db.select().from(statusPagesTable).where(

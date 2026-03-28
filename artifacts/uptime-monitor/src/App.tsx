@@ -17,6 +17,7 @@ import { Notifications } from "@/pages/Notifications";
 import { Privacy } from "@/pages/Privacy";
 import { Terms } from "@/pages/Terms";
 import { Security } from "@/pages/Security";
+import { PlatformStatus } from "@/pages/PlatformStatus";
 import { CookieBanner } from "@/components/CookieBanner";
 import NotFound from "@/pages/not-found";
 
@@ -41,6 +42,7 @@ function RootRouter() {
   return (
     <Switch>
       {/* Public Status Pages (No Auth Required) */}
+      <Route path="/status" component={PlatformStatus} />
       <Route path="/status/:slug" component={PublicStatusPage} />
 
       {/* Legal & Info Pages */}

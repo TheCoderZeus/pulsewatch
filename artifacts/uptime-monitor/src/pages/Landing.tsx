@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { motion, LayoutGroup } from "framer-motion";
 import {
   Activity, Zap, Shield, Globe, ArrowRight, CheckCircle2,
@@ -153,7 +154,7 @@ export function LandingPage() {
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#status" className="hover:text-white transition-colors">Status</a>
+            <Link href="/status" className="hover:text-white transition-colors">Status</Link>
           </div>
           <div className="flex items-center gap-3">
             <button
